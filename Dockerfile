@@ -18,9 +18,8 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     make install
 
 # Download and compile ModSecurity
-RUN cd /usr/local/src && \
-    git clone --depth 1 https://github.com/SpiderLabs/ModSecurity && \
-    cd ModSecurity && \
+RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
+    cd /usr/local/src/ModSecurity && \
     git submodule init && \
     git submodule update && \
     ./build.sh && \
