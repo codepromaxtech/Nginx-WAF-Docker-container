@@ -13,7 +13,7 @@ COPY modsecurity.conf /etc/nginx/modsecurity/modsecurity.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy custom rules (optional)
-COPY rules/ /etc/nginx/modsecurity/rules/
+# COPY rules/ /etc/nginx/modsecurity/rules/
 
 # Expose ports
 EXPOSE 80 443
