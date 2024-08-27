@@ -7,7 +7,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update the system and install necessary prerequisites
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y nginx php-fpm php-mysql php-xml php-mbstring php-curl php-zip mysql-server git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget
+    apt-get install -y nginx php-fpm php-mysql php-xml php-mbstring php-curl php-zip php-gd mysql-server git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget unzip
+
+# Configure MySQL server (Manual intervention needed for secure installation)
+RUN service mysql start && \
+    mysql -e "FLUSH PRIVILEGES;"
 
 # Download and compile ModSecurity
 RUN cd /usr/local/src && \
@@ -47,21 +51,22 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
     echo 'Include /etc/nginx/owasp-crs/crs-setup.conf' >> /etc/nginx/modsecurity.conf && \
     echo 'Include /etc/nginx/owasp-crs/rules/*.conf' >> /etc/nginx/modsecurity.conf
 
-# Create a directory for future projects
-RUN mkdir -p /www/project && \
-    chown -R www-data:www-data /www/project && \
-    chmod -R 755 /www/project
+# Download and extract the latest WordPress
+RUN wget https://wordpress.org/latest.zip -O /tmp/wordpress.zip && \
+    unzip /tmp/wordpress.zip -d /var/www/html && \
+    mv /var/www/html/wordpress/* /var/www/html/ && \
+    rmdir /var/www/html/wordpress && \
+    chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
 
-# Configure NGINX to serve from /www/project
-# Configure NGINX to serve from /www/project
-# Configure NGINX to serve from /www/project
-RUN echo 'server {
-    listen 80;
+# Configure NGINX to serve WordPress
+RUN echo "server {
+    listen 80 default_server;
     server_name localhost;
-    root /www/project;
+    root /var/www/html;
     index index.php index.html index.htm;
     location / {
-        try_files $$uri $$uri/ =404;
+        try_files \$uri \$uri/ /index.php?\$args;
     }
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
@@ -72,12 +77,10 @@ RUN echo 'server {
     }
     modsecurity on;
     modsecurity_rules_file /etc/nginx/modsecurity.conf;
-}' > /etc/nginx/sites-available/default
-
-
+}" > /etc/nginx/sites-available/default
 
 # Expose port 80 to the host
 EXPOSE 80
 
-# Start NGINX and MySQL
-CMD service mysql start && service nginx start && tail -f /var/log/nginx/access.log
+# Start MySQL, NGINX, and PHP-FPM
+CMD service mysql start && service php8.1-fpm start && service nginx start && tail -f /var/log/nginx/access.log
