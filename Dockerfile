@@ -1,9 +1,10 @@
-# Use the official Nginx base image
-FROM nginx:latest
+# Use Ubuntu as the base image
+FROM ubuntu:latest
 
 # Install dependencies
 RUN apt-get update && \
     apt-get install -y \
+    nginx \
     git \
     gcc \
     libtool \
@@ -38,6 +39,10 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /opt
     && ./configure --with-compat --add-dynamic-module=/opt/ModSecurity-nginx \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
+
+# Enable ModSecurity in Nginx
+RUN echo "load_module modules/ngx_http_modsecurity_module.so;" \
+    >> /etc/nginx/nginx.conf
 
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
