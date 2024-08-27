@@ -16,7 +16,7 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     ./configure && \
     make && \
     make install
-
+    
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
     cd /usr/local/src/ModSecurity && \
@@ -28,11 +28,14 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src
     make install
 
 # Download and compile ModSecurity NGINX connector
-RUN cd /usr/local/src && \
-    git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git && \
-    cd /usr/local/src/ModSecurity-nginx && \
-    cd /usr/local/src/nginx-1.18.0 && \
-    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
+RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
+    cd /usr/local/src/ModSecurity-nginx
+
+# Download and compile NGINX 1.18.0 with ModSecurity
+RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
+    tar -zxvf nginx-1.18.0.tar.gz && \
+    cd nginx-1.18.0 && \
+    ./configure --with-compat --add-dynamic-module=/usr/local/src/ModSecurity-nginx && \
     make modules && \
     mkdir -p /etc/nginx/modules && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/
