@@ -60,5 +60,9 @@ COPY default.conf /usr/local/nginx/conf/nginx.conf
 # Expose port 80 to the host
 EXPOSE 80
 
-# Start NGINX
-CMD ["nginx", "-g", "daemon off;"]
+# Create a script to start both Nginx and PHP-FPM
+RUN echo '#!/bin/bash\nservice php8.1-fpm start\nnginx -g "daemon off;"' > /start.sh && \
+    chmod +x /start.sh
+
+# Set the entrypoint to the script
+ENTRYPOINT ["/start.sh"]
