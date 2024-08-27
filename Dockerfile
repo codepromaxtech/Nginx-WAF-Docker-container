@@ -55,9 +55,11 @@ RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     rm /tmp/wordpress.tar.gz
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
-# Copy NGINX configuration file
-COPY default.conf /usr/local/nginx/conf/nginx.conf
-
+# Copy NGINX configuration file and enable site
+COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
+RUN unlink /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/ 
+   
 # Expose port 80 to the host
 EXPOSE 80
 
