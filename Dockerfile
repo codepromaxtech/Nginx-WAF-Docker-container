@@ -53,13 +53,14 @@ RUN mkdir -p /www/project && \
     chmod -R 755 /www/project
 
 # Configure NGINX to serve from /www/project
-RUN echo "server {
+# Configure NGINX to serve from /www/project
+RUN echo 'server {
     listen 80;
     server_name localhost;
     root /www/project;
     index index.php index.html index.htm;
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files $uri $uri/ =404;
     }
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
@@ -70,7 +71,8 @@ RUN echo "server {
     }
     modsecurity on;
     modsecurity_rules_file /etc/nginx/modsecurity.conf;
-}" > /etc/nginx/sites-available/default
+}' > /etc/nginx/sites-available/default
+
 
 # Expose port 80 to the host
 EXPOSE 80
