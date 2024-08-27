@@ -59,25 +59,8 @@ RUN wget https://wordpress.org/latest.zip -O /tmp/wordpress.zip && \
     chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
 
-# Configure NGINX to serve WordPress
-RUN echo "server {
-    listen 80 default_server;
-    server_name localhost;
-    root /var/www/html;
-    index index.php index.html index.htm;
-    location / {
-        try_files \$uri \$uri/ /index.php?\$args;
-    }
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
-    }
-    location ~ /\.ht {
-        deny all;
-    }
-    modsecurity on;
-    modsecurity_rules_file /etc/nginx/modsecurity.conf;
-}" > /etc/nginx/sites-available/default
+# Copy the NGINX configuration file from the local machine
+COPY default.conf /etc/nginx/sites-available/default
 
 # Expose port 80 to the host
 EXPOSE 80
