@@ -15,8 +15,10 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     cd nginx-1.18.0 && \
     ./configure && \
     make && \
-    make install
-    
+    make install && \
+    cd .. && \
+    rm nginx-1.18.0.tar.gz
+
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
     cd /usr/local/src/ModSecurity && \
@@ -38,16 +40,20 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     ./configure --with-compat --add-dynamic-module=/usr/local/src/ModSecurity-nginx && \
     make modules && \
     mkdir -p /etc/nginx/modules && \
-    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/
+    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
+    cd .. && \
+    rm nginx-1.18.0.tar.gz
 
 # Configure NGINX to load ModSecurity module
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf
+
 # Download WordPress
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html && \
     chown -R www-data:www-data /var/www/html/wordpress && \
     mv /var/www/html/wordpress/* /var/www/html && \
     rm /tmp/wordpress.tar.gz
+
 # Copy NGINX configuration file
 COPY default.conf /usr/local/nginx/conf/nginx.conf
 
