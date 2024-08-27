@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install prerequisites
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git gcc make automake libtool pkg-config autotools-dev nginx php-fpm php-mysql curl
+    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git gcc make automake libtool pkg-config autotools-dev nginx php8.1-fpm php8.1-mysql curl sudo
 
 # Download and compile NGINX 1.18.0
 RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
@@ -45,7 +45,8 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     rm nginx-1.18.0.tar.gz
 
 # Configure NGINX to load ModSecurity module
-RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf
+RUN mkdir -p /usr/local/nginx/conf && \
+    echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf
 
 # Download WordPress
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
@@ -53,13 +54,16 @@ RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     chown -R www-data:www-data /var/www/html/wordpress && \
     mv /var/www/html/wordpress/* /var/www/html && \
     rm /tmp/wordpress.tar.gz
+
+# Set proper permissions
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
+
 # Copy NGINX configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
 RUN unlink /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/ 
-   
+    ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
+
 # Expose port 80 to the host
 EXPOSE 80
 
