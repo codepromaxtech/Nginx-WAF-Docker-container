@@ -2,7 +2,7 @@ server {
     listen 80;
     server_name cpmerp.codepromax.com.de localhost;
 
-    root /var/www/html;
+    root /var/www/wordpress;
     index index.php index.html index.htm;
 
     location / {
