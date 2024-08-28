@@ -52,12 +52,13 @@ RUN mkdir -p /usr/local/nginx/conf && \
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html && \
     chown -R www-data:www-data /var/www/html/wordpress && \
-    mv /var/www/html/wordpress/* /var/www/html && \
+    mkdir /var/www/wordpress && \
+    mv /var/www/html/wordpress/* /var/www/wordpress && \
+    chown -R www-data:www-data /var/www/wordpress && \
+    chmod -R 755 /var/www/wordpress && \
+    rm -r /var/www/html && \
     rm /tmp/wordpress.tar.gz
-
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html
+    
 
 # Copy NGINX configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
