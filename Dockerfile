@@ -1,4 +1,4 @@
-# Use Ubuntu 22.04 as the base image
+update the file # Use Ubuntu 22.04 as the base image
 FROM ubuntu:22.04
 
 # Set environment variables to avoid interactive prompts during package installation
@@ -7,8 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install prerequisites
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git gcc make automake libtool pkg-config autotools-dev nginx php8.1-fpm php8.1-mysql curl sudo \
-    libxml2-dev libyajl-dev libgeoip-dev libcurl4-openssl-dev
+    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git gcc make automake libtool pkg-config autotools-dev nginx php8.1-fpm php8.1-mysql curl sudo
 
 # Download and compile NGINX 1.18.0
 RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
@@ -25,10 +24,10 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src
     cd /usr/local/src/ModSecurity && \
     git submodule init && \
     git submodule update && \
-    ./build.sh || { echo 'Build failed' ; exit 1; } && \
-    ./configure || { echo 'Configure failed' ; exit 1; } && \
-    make || { echo 'Make failed' ; exit 1; } && \
-    make install || { echo 'Make install failed' ; exit 1; }
+    ./build.sh && \
+    ./configure && \
+    make && \
+    make install
 
 # Download and compile ModSecurity NGINX connector
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
@@ -46,7 +45,7 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     rm -rf nginx-1.18.0.tar.gz
 
 # Configure NGINX to load ModSecurity module
-RUN echo "load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;" > /etc/nginx/nginx.conf && \
+RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
     mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
     mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
     sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
