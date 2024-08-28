@@ -17,7 +17,7 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     make && \
     make install && \
     cd .. && \
-    rm nginx-1.18.0.tar.gz
+    rm -rf nginx-1.18.0.tar.gz nginx-1.18.0
 
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
@@ -42,11 +42,10 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     mkdir -p /etc/nginx/modules && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
     cd .. && \
-    rm nginx-1.18.0.tar.gz
+    rm -rf nginx-1.18.0.tar.gz nginx-1.18.0
 
 # Configure NGINX to load ModSecurity module
-RUN mkdir -p /usr/local/nginx/conf && \
-    echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf
+RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf
 
 # Download WordPress
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
@@ -56,9 +55,7 @@ RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     mv /var/www/html/wordpress/* /var/www/wordpress && \
     chown -R www-data:www-data /var/www/wordpress && \
     chmod -R 755 /var/www/wordpress && \
-    rm -r /var/www/html && \
-    rm /tmp/wordpress.tar.gz
-    
+    rm -rf /var/www/html /tmp/wordpress.tar.gz
 
 # Copy NGINX configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
