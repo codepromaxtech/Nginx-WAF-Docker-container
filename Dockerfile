@@ -17,7 +17,7 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     make && \
     make install && \
     cd .. && \
-    rm -rf nginx-1.18.0.tar.gz nginx-1.18.0
+    rm -rf nginx-1.18.0.tar.gz
 
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
@@ -42,10 +42,19 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     mkdir -p /etc/nginx/modules && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
     cd .. && \
-    rm -rf nginx-1.18.0.tar.gz nginx-1.18.0
+    rm -rf nginx-1.18.0.tar.gz
 
 # Configure NGINX to load ModSecurity module
-RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf
+RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
+    mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
+    mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
+    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
+
+# Download OWASP Core Rule Set & Include the CRS configuration in your ModSecurity configuration
+RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs && \
+    cp /etc/nginx/owasp-crs/crs-setup.conf.example /etc/nginx/owasp-crs/crs-setup.conf && \
+    echo 'Include /etc/nginx/owasp-crs/crs-setup.conf' | tee -a /etc/nginx/modsecurity.conf && \
+    echo 'Include /etc/nginx/owasp-crs/rules/*.conf' | tee -a /etc/nginx/modsecurity.conf
 
 # Download WordPress
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
