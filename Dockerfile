@@ -1,4 +1,4 @@
-update the file # Use Ubuntu 22.04 as the base image
+# Use Ubuntu 22.04 as the base image
 FROM ubuntu:22.04
 
 # Set environment variables to avoid interactive prompts during package installation
