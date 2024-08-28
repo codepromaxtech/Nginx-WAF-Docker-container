@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install prerequisites
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git gcc make automake libtool pkg-config autotools-dev nginx php8.1-fpm php8.1-mysql curl sudo
+    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git gcc make automake libtool pkg-config autotools-dev nginx php8.1-fpm php8.1-mysql curl sudo \
+    libxml2-dev libyajl-dev libgeoip-dev libcurl4-openssl-dev
 
 # Download and compile NGINX 1.18.0
 RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
@@ -24,10 +25,10 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src
     cd /usr/local/src/ModSecurity && \
     git submodule init && \
     git submodule update && \
-    ./build.sh && \
-    ./configure && \
-    make && \
-    make install
+    ./build.sh || { echo 'Build failed' ; exit 1; } && \
+    ./configure || { echo 'Configure failed' ; exit 1; } && \
+    make || { echo 'Make failed' ; exit 1; } && \
+    make install || { echo 'Make install failed' ; exit 1; }
 
 # Download and compile ModSecurity NGINX connector
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
