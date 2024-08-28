@@ -17,7 +17,7 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     make && \
     make install && \
     cd .. && \
-    rm -rf nginx-1.18.0 nginx-1.18.0.tar.gz
+    rm -rf nginx-1.18.0.tar.gz
 
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
