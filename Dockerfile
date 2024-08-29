@@ -71,7 +71,7 @@ COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.d
 RUN unlink /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
 
-# Expose port 80 to the host
+## Expose port 80 to the host
 EXPOSE 80
 
 # Create a script to start both Nginx and PHP-FPM
