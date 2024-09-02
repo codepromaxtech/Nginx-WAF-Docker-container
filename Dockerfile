@@ -1,12 +1,15 @@
 # Use Ubuntu 22.04 as the base image
 FROM ubuntu:22.04
 
-# Set environment variables to non-interactive
+# Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update the system and install necessary prerequisites
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y curl php-fpm php-mysql php-xml php-mbstring php-curl php-zip git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget composer
+# Install prerequisites
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
+    git gcc make automake libtool pkg-config autotools-dev \
+    php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip curl
 
 # Download and compile NGINX 1.18.0
 RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
@@ -17,10 +20,10 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     make install && \
     cd .. && \
     rm -rf nginx-1.18.0.tar.gz
+
 # Download and compile ModSecurity
-RUN cd /usr/local/src && \
-    git clone --depth 1 https://github.com/SpiderLabs/ModSecurity && \
-    cd ModSecurity && \
+RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
+    cd /usr/local/src/ModSecurity && \
     git submodule init && \
     git submodule update && \
     ./build.sh && \
@@ -28,19 +31,20 @@ RUN cd /usr/local/src && \
     make && \
     make install
 
-# Download and compile ModSecurity NGINX Connector
-RUN cd /usr/local/src && \
-    git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
+# Download and compile ModSecurity NGINX connector
+RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
+    cd /usr/local/src/ModSecurity-nginx
 
-# Download and compile NGINX with ModSecurity module
-RUN cd /usr/local/src && \
-    wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
+# Download and compile NGINX 1.18.0 with ModSecurity
+RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     tar -zxvf nginx-1.18.0.tar.gz && \
     cd nginx-1.18.0 && \
-    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
+    ./configure --with-compat --add-dynamic-module=/usr/local/src/ModSecurity-nginx && \
     make modules && \
-    mkdir -p /usr/share/nginx/modules && \
-    cp objs/ngx_http_modsecurity_module.so /usr/share/nginx/modules/
+    mkdir -p /etc/nginx/modules && \
+    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
+    cd .. && \
+    rm -rf nginx-1.18.0.tar.gz
 
 # Configure NGINX to load ModSecurity module
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
@@ -48,13 +52,13 @@ RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/ngin
     mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
     sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
 
-# Download OWASP Core Rule Set and include it in ModSecurity configuration
+# Download OWASP Core Rule Set & Include the CRS configuration in your ModSecurity configuration
 RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs && \
     cp /etc/nginx/owasp-crs/crs-setup.conf.example /etc/nginx/owasp-crs/crs-setup.conf && \
-    echo 'Include /etc/nginx/owasp-crs/crs-setup.conf' >> /etc/nginx/modsecurity.conf && \
-    echo 'Include /etc/nginx/owasp-crs/rules/*.conf' >> /etc/nginx/modsecurity.conf
+    echo 'Include /etc/nginx/owasp-crs/crs-setup.conf' | tee -a /etc/nginx/modsecurity.conf && \
+    echo 'Include /etc/nginx/owasp-crs/rules/*.conf' | tee -a /etc/nginx/modsecurity.conf
 
-# Download and setup WordPress
+# Download WordPress
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html && \
     chown -R www-data:www-data /var/www/html/wordpress && \
@@ -64,9 +68,8 @@ RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     chmod -R 755 /var/www/cpmerp.codepromax.com.de && \
     rm -rf /var/www/html /tmp/wordpress.tar.gz
 
-# Configure NGINX for WordPress and Laravel
+# Copy NGINX configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
-
 RUN unlink /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
 
