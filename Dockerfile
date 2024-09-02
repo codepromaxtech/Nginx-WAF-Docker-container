@@ -51,18 +51,6 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
     echo 'Include /etc/nginx/owasp-crs/crs-setup.conf' >> /etc/nginx/modsecurity.conf && \
     echo 'Include /etc/nginx/owasp-crs/rules/*.conf' >> /etc/nginx/modsecurity.conf
 
-# Create MySQL databases for WordPress and Laravel
-RUN service mysql start && \
-    mysql -e "CREATE DATABASE wordpress_db;" && \
-    mysql -e "CREATE USER 'wp_user'@'localhost' IDENTIFIED BY 'strong_password';" && \
-    mysql -e "GRANT ALL PRIVILEGES ON wordpress_db.* TO 'wp_user'@'localhost';" && \
-    mysql -e "FLUSH PRIVILEGES;" && \
-    mysql -e "CREATE DATABASE laravel_db;" && \
-    mysql -e "CREATE USER 'laravel_user'@'localhost' IDENTIFIED BY 'strong_password';" && \
-    mysql -e "GRANT ALL PRIVILEGES ON laravel_db.* TO 'laravel_user'@'localhost';" && \
-    mysql -e "FLUSH PRIVILEGES;" && \
-    mysql -e "EXIT;"
-
 # Download and setup WordPress
 RUN cd /var/www && \
     wget https://wordpress.org/latest.tar.gz && \
