@@ -52,12 +52,14 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
     echo 'Include /etc/nginx/owasp-crs/rules/*.conf' >> /etc/nginx/modsecurity.conf
 
 # Download and setup WordPress
-RUN cd /var/www && \
-    wget https://wordpress.org/latest.tar.gz && \
-    tar -xzvf latest.tar.gz && \
-    mv wordpress cpmerp.codepromax.com.de && \
+RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
+    tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html && \
+    chown -R www-data:www-data /var/www/html/wordpress && \
+    mkdir /var/www/cpmerp.codepromax.com.de && \
+    mv /var/www/html/wordpress/* /var/www/cpmerp.codepromax.com.de && \
     chown -R www-data:www-data /var/www/cpmerp.codepromax.com.de && \
-    chmod -R 755 /var/www/cpmerp.codepromax.com.de
+    chmod -R 755 /var/www/cpmerp.codepromax.com.de && \
+    rm -rf /var/www/html /tmp/wordpress.tar.gz
 
 # Configure NGINX for WordPress and Laravel
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
