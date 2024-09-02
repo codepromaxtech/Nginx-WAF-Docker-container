@@ -45,8 +45,9 @@ RUN cd /usr/local/src && \
 # Configure NGINX to load ModSecurity module
 RUN echo "load_module /usr/share/nginx/modules/ngx_http_modsecurity_module.so;" > /etc/nginx/nginx.conf
 
-# Move and configure ModSecurity
-RUN mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
+# Configure NGINX to load ModSecurity module
+RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
+    mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
     mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
     sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
 
