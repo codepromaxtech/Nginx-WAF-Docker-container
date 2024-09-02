@@ -55,58 +55,15 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
 RUN cd /var/www && \
     wget https://wordpress.org/latest.tar.gz && \
     tar -xzvf latest.tar.gz && \
-    mv wordpress waf.codepromax.com.de && \
-    chown -R www-data:www-data /var/www/waf.codepromax.com.de && \
-    chmod -R 755 /var/www/waf.codepromax.com.de
-
-# Setup Laravel
-RUN cd /var/www && \
-    composer create-project --prefer-dist laravel/laravel waf2.codepromax.com.de && \
-    chown -R www-data:www-data /var/www/waf2.codepromax.com.de && \
-    chmod -R 755 /var/www/waf2.codepromax.com.de
+    mv wordpress cpmerp.codepromax.com.de && \
+    chown -R www-data:www-data /var/www/cpmerp.codepromax.com.de && \
+    chmod -R 755 /var/www/cpmerp.codepromax.com.de
 
 # Configure NGINX for WordPress and Laravel
-RUN echo 'server {\n\
-    listen 80;\n\
-    server_name waf.codepromax.com.de;\n\
-    root /var/www/waf.codepromax.com.de;\n\
-    index index.php index.html index.htm;\n\
-    location / {\n\
-        try_files $uri $uri/ /index.php?$args;\n\
-    }\n\
-    location ~ \.php$ {\n\
-        include snippets/fastcgi-php.conf;\n\
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;\n\
-    }\n\
-    location ~ /\.ht {\n\
-        deny all;\n\
-    }\n\
-    modsecurity on;\n\
-    modsecurity_rules_file /etc/nginx/modsecurity.conf;\n\
-}' > /etc/nginx/sites-available/waf.codepromax.com.de
-
-RUN echo 'server {\n\
-    listen 80;\n\
-    server_name waf2.codepromax.com.de;\n\
-    root /var/www/waf2.codepromax.com.de/public;\n\
-    index index.php index.html index.htm;\n\
-    location / {\n\
-        try_files $uri $uri/ /index.php?$query_string;\n\
-    }\n\
-    location ~ \.php$ {\n\
-        include snippets/fastcgi-php.conf;\n\
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;\n\
-    }\n\
-    location ~ /\.ht {\n\
-        deny all;\n\
-    }\n\
-    modsecurity on;\n\
-    modsecurity_rules_file /etc/nginx/modsecurity.conf;\n\
-}' > /etc/nginx/sites-available/waf2.codepromax.com.de
+COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
 
 # Enable the sites and restart NGINX
 RUN ln -s /etc/nginx/sites-available/waf.codepromax.com.de /etc/nginx/sites-enabled/ && \
-    ln -s /etc/nginx/sites-available/waf2.codepromax.com.de /etc/nginx/sites-enabled/ && \
     chown -R www-data:www-data /var/log/nginx && \
     chmod -R 755 /var/log/nginx && \
     nginx -t && \
