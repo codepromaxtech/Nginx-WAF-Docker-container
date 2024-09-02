@@ -59,11 +59,9 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
     echo 'Include /etc/nginx/owasp-crs/rules/*.conf' | tee -a /etc/nginx/modsecurity.conf
 
 # Download WordPress
-RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
-    tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html && \
-    chown -R www-data:www-data /var/www/html/wordpress && \
-    mkdir /var/www/cpmerp.codepromax.com.de && \
-    mv /var/www/html/wordpress/* /var/www/cpmerp.codepromax.com.de && \
+RUN mkdir -p /var/www/cpmerp.codepromax.com.de && \
+    curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
+    tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/cpmerp.codepromax.com.de && \
     chown -R www-data:www-data /var/www/cpmerp.codepromax.com.de && \
     chmod -R 755 /var/www/cpmerp.codepromax.com.de && \
     rm -rf /tmp/wordpress.tar.gz
