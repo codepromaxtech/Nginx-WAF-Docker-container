@@ -2,7 +2,7 @@ server {
     listen 80;
     server_name cpmerp.codepromax.com.de localhost;
 
-    root /var/www/wordpress;
+    root /var/www/cpmerp.codepromax.com.de;
     index index.php index.html index.htm;
 
     # Enable ModSecurity for this server block
