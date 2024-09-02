@@ -67,8 +67,8 @@ RUN mkdir -p /var/www/cpmerp.codepromax.com.de && \
     rm -rf /tmp/wordpress.tar.gz
 
 # Copy NGINX configuration file and enable site
-COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
-RUN ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
+RUN [ -f /etc/nginx/sites-enabled/default ] && unlink /etc/nginx/sites-enabled/default || echo "Default site not present, skipping unlink" && \
+    ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
 
 ## Expose port 80 to the host
 EXPOSE 80
