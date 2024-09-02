@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update the system and install necessary prerequisites
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y nginx php-fpm php-mysql php-xml php-mbstring php-curl php-zip mysql-server git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget composer
+    apt-get install -y curl nginx php-fpm php-mysql php-xml php-mbstring php-curl php-zip mysql-server git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget composer
 
 # Secure MySQL installation (assuming default settings)
 RUN service mysql start && \
