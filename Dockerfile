@@ -6,12 +6,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update the system and install necessary prerequisites
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y curl nginx php-fpm php-mysql php-xml php-mbstring php-curl php-zip mysql-server git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget composer
+    apt-get install -y curl php-fpm php-mysql php-xml php-mbstring php-curl php-zip git gcc build-essential libtool libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget composer
 
-# Secure MySQL installation (assuming default settings)
-RUN service mysql start && \
-    mysql_secure_installation --use-default
-
+# Download and compile NGINX 1.18.0
+RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
+    tar -zxvf nginx-1.18.0.tar.gz && \
+    cd nginx-1.18.0 && \
+    ./configure && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf nginx-1.18.0.tar.gz
 # Download and compile ModSecurity
 RUN cd /usr/local/src && \
     git clone --depth 1 https://github.com/SpiderLabs/ModSecurity && \
