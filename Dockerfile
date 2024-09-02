@@ -43,9 +43,6 @@ RUN cd /usr/local/src && \
     cp objs/ngx_http_modsecurity_module.so /usr/share/nginx/modules/
 
 # Configure NGINX to load ModSecurity module
-RUN echo "load_module /usr/share/nginx/modules/ngx_http_modsecurity_module.so;" > /etc/nginx/nginx.conf
-
-# Configure NGINX to load ModSecurity module
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
     mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
     mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
