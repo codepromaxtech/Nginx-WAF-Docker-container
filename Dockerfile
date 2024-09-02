@@ -64,15 +64,15 @@ RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
 # Configure NGINX for WordPress and Laravel
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
 
-# Enable the sites and restart NGINX
-RUN ln -s /etc/nginx/sites-available/waf.codepromax.com.de /etc/nginx/sites-enabled/ && \
-    chown -R www-data:www-data /var/log/nginx && \
-    chmod -R 755 /var/log/nginx && \
-    nginx -t && \
-    service nginx restart
+RUN unlink /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
 
-# Expose port 80
+## Expose port 80 to the host
 EXPOSE 80
 
-# Start NGINX and PHP-FPM
-CMD ["nginx", "-g", "daemon off;"]
+# Create a script to start both Nginx and PHP-FPM
+RUN echo '#!/bin/bash\nservice php8.1-fpm start\nnginx -g "daemon off;"' > /start.sh && \
+    chmod +x /start.sh
+
+# Set the entrypoint to the script
+ENTRYPOINT ["/start.sh"]
