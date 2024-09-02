@@ -68,8 +68,7 @@ RUN mkdir -p /var/www/cpmerp.codepromax.com.de && \
 
 # Copy NGINX configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
-RUN unlink /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
 
 ## Expose port 80 to the host
 EXPOSE 80
