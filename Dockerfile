@@ -66,7 +66,7 @@ RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     mv /var/www/html/wordpress/* /var/www/wordpress && \
     chown -R www-data:www-data /var/www/wordpress && \
     chmod -R 755 /var/www/wordpress && \
-    rm -rf /var/www/html /tmp/wordpress.tar.gz
+    rm -rf /tmp/wordpress.tar.gz
 
 # Copy NGINX configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
