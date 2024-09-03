@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install prerequisites
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y curl nginx wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
+    apt-get install -y curl wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
     git gcc make automake libtool pkg-config autotools-dev \
     php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip 
 
@@ -25,19 +25,16 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
     cd /usr/local/src/ModSecurity-nginx
 
-# Fetch the NGINX version from the official site
-RUN NGINX_VERSION=$(curl -s http://nginx.org/download/ | grep -o 'nginx-[0-9.]*\.tar\.gz' | head -1 | grep -o '[0-9.]*') && \
-    echo "Using NGINX version: $NGINX_VERSION" && \
-    wget http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
-    tar -zxvf nginx-$NGINX_VERSION.tar.gz && \
-    cd nginx-$NGINX_VERSION && \
+# Download and compile NGINX 1.18.0 with ModSecurity
+RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
+    tar -zxvf nginx-1.18.0.tar.gz && \
+    cd nginx-1.18.0 && \
     ./configure --with-compat --add-dynamic-module=/usr/local/src/ModSecurity-nginx && \
     make modules && \
     mkdir -p /etc/nginx/modules && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
     cd .. && \
-    rm -rf nginx-$NGINX_VERSION.tar.gz
-
+    rm -rf nginx-1.18.0.tar.gz
 
 # Configure NGINX to load ModSecurity module
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
