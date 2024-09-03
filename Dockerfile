@@ -25,9 +25,8 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
     cd /usr/local/src/ModSecurity-nginx
 
-# Download and compile NGINX 1.18.0 with ModSecurity
-# Set environment variable for NGINX version by checking the installed version
-RUN NGINX_VERSION=$(nginx -v 2>&1 | grep -o '[0-9.]*$') && \
+# Fetch the NGINX version from the official site
+RUN NGINX_VERSION=$(curl -s http://nginx.org/download/ | grep -o 'nginx-[0-9.]*\.tar\.gz' | head -1 | grep -o '[0-9.]*') && \
     echo "Using NGINX version: $NGINX_VERSION" && \
     wget http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
     tar -zxvf nginx-$NGINX_VERSION.tar.gz && \
@@ -38,6 +37,7 @@ RUN NGINX_VERSION=$(nginx -v 2>&1 | grep -o '[0-9.]*$') && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
     cd .. && \
     rm -rf nginx-$NGINX_VERSION.tar.gz
+
 
 # Configure NGINX to load ModSecurity module
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
