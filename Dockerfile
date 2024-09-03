@@ -11,16 +11,6 @@ RUN apt-get update && \
     git gcc make automake libtool pkg-config autotools-dev \
     php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip 
 
-# Download and compile NGINX 1.18.0
-RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
-    tar -zxvf nginx-1.18.0.tar.gz && \
-    cd nginx-1.18.0 && \
-    ./configure && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf nginx-1.18.0.tar.gz
-
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
     cd /usr/local/src/ModSecurity && \
@@ -36,15 +26,18 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr
     cd /usr/local/src/ModSecurity-nginx
 
 # Download and compile NGINX 1.18.0 with ModSecurity
-RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
-    tar -zxvf nginx-1.18.0.tar.gz && \
-    cd nginx-1.18.0 && \
+# Set environment variable for NGINX version by checking the installed version
+RUN NGINX_VERSION=$(nginx -v 2>&1 | grep -o '[0-9.]*$') && \
+    echo "Using NGINX version: $NGINX_VERSION" && \
+    wget http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
+    tar -zxvf nginx-$NGINX_VERSION.tar.gz && \
+    cd nginx-$NGINX_VERSION && \
     ./configure --with-compat --add-dynamic-module=/usr/local/src/ModSecurity-nginx && \
     make modules && \
     mkdir -p /etc/nginx/modules && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
     cd .. && \
-    rm -rf nginx-1.18.0.tar.gz
+    rm -rf nginx-$NGINX_VERSION.tar.gz
 
 # Configure NGINX to load ModSecurity module
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /usr/local/nginx/conf/nginx.conf && \
