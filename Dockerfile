@@ -36,7 +36,10 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
 
 # Copy a complete and correct NGINX configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
-
+# Configure NGINX to load ModSecurity module
+RUN mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
+    mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
+    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
 # Download OWASP Core Rule Set & Include the CRS configuration in your ModSecurity configuration
 RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs && \
     cp /etc/nginx/owasp-crs/crs-setup.conf.example /etc/nginx/owasp-crs/crs-setup.conf && \
