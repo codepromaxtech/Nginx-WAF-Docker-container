@@ -6,8 +6,8 @@ server {
     index index.php index.html index.htm;
 
     # Enable ModSecurity for this server block
-    modsecurity on;
-    modsecurity_rules_file /etc/nginx/modsecurity.conf;
+    # modsecurity on;
+    # modsecurity_rules_file /etc/nginx/modsecurity.conf;
 
     location / {
         try_files $uri $uri/ /index.php?$args;
