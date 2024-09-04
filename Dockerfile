@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx curl wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
     git gcc make automake libtool pkg-config autotools-dev \
-    php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip 
+    php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip
 
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
@@ -22,8 +22,7 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src
     make install
 
 # Download and compile ModSecurity NGINX connector
-RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx && \
-    cd /usr/local/src/ModSecurity-nginx
+RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git /usr/local/src/ModSecurity-nginx
 
 # Compile ModSecurity module and copy it to the NGINX modules directory
 RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
@@ -35,17 +34,8 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz && \
     cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/ && \
     rm -rf nginx-1.18.0.tar.gz nginx-1.18.0
 
-# Configure NGINX to load ModSecurity module
-RUN echo "load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;" > /etc/nginx/nginx.conf && \
-    mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
-    mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
-    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
-
-# Configure NGINX to load ModSecurity module
-#RUN echo "load_module modules/ngx_http_modsecurity_module.so;" > /etc/nginx/nginx.conf && \
-#    mv /usr/local/src/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsecurity.conf && \
-#    mv /usr/local/src/ModSecurity/unicode.mapping /etc/nginx/ && \
-#    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity.conf
+# Copy a complete and correct NGINX configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Download OWASP Core Rule Set & Include the CRS configuration in your ModSecurity configuration
 RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs && \
@@ -57,18 +47,18 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
 RUN curl -o /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
     tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html && \
     chown -R www-data:www-data /var/www/html/wordpress && \
-    mkdir /var/www/wordpress && \
-    mv /var/www/html/wordpress/* /var/www/wordpress && \
-    chown -R www-data:www-data /var/www/wordpress && \
-    chmod -R 755 /var/www/wordpress && \
+    mkdir /var/www/cpmerp.codepromax.com.de && \
+    mv /var/www/html/wordpress/* /var/www/cpmerp.codepromax.com.de && \
+    chown -R www-data:www-data /var/www/cpmerp.codepromax.com.de && \
+    chmod -R 755 /var/www/cpmerp.codepromax.com.de && \
     rm -rf /tmp/wordpress.tar.gz
 
-# Copy NGINX configuration file and enable site
+# Copy NGINX site configuration file and enable site
 COPY cpmerp.codepromax.com.de /etc/nginx/sites-available/cpmerp.codepromax.com.de
 RUN unlink /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/cpmerp.codepromax.com.de /etc/nginx/sites-enabled/
 
-## Expose port 80 to the host
+# Expose port 80 to the host
 EXPOSE 80
 
 # Create a script to start both Nginx and PHP-FPM
