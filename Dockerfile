@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install prerequisites
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y curl wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
+    apt-get install -y nginx curl wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
     git gcc make automake libtool pkg-config autotools-dev \
     php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip 
 
