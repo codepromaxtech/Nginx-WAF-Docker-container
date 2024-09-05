@@ -10,8 +10,9 @@ RUN apt-get update && \
     apt-get install -y nginx curl wget build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev \
     git gcc make automake libtool pkg-config autotools-dev \
     php8.1-fpm php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip php8.1-gd php8.1-bcmath \
-    php8.1-intl php8.1-soap php8.1-cli php8.1-json php8.1-readline php8.1-tokenizer \
+    php8.1-intl php8.1-soap php8.1-cli php8.1-readline php8.1-tokenizer \
     mariadb-client supervisor
+
 # Download and compile ModSecurity
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity /usr/local/src/ModSecurity && \
     cd /usr/local/src/ModSecurity && \
