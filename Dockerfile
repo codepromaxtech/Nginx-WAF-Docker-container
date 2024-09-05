@@ -49,9 +49,9 @@ RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/owasp-crs &&
     echo 'Include /etc/nginx/owasp-crs/rules/*.conf' | tee -a /etc/nginx/modsecurity.conf
 
 # Copy NGINX site configuration file and enable site
-COPY wordpress /etc/nginx/sites-available/wordpress
+COPY project /etc/nginx/sites-available/project
 RUN unlink /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
+    ln -s /etc/nginx/sites-available/project /etc/nginx/sites-enabled/
 
 # Expose port 80 to the host
 EXPOSE 80
